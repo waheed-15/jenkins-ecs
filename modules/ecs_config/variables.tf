@@ -10,3 +10,6 @@ variable "key_name" {
   type = string
   default = "waheed-test"
 }
+variable "ecr_image_uri" {
+  type = string
+}
