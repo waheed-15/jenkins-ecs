@@ -1,5 +1,10 @@
+provider "aws" {
+  region = var.region
+}
+
+
 resource "aws_ecr_repository" "app_repo" {
-  name = "my-app-repo"
+  name = var.ecr_name
 }
 
 output "ecr_repo_url" {
