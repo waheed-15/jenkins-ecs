@@ -50,11 +50,11 @@ resource "aws_ecs_service" "ecs_service" {
    weight            = 100
  }
 
- load_balancer {
-   target_group_arn = aws_lb_target_group.ecs_tg.arn
-   container_name   = "dockergs"
-   container_port   = 80
- }
+#  load_balancer {
+#    target_group_arn = aws_lb_target_group.ecs_tg.arn
+#    container_name   = "dockergs"
+#    container_port   = 80
+#  }
 
 #  depends_on = module.ecs_config.aws_autoscaling_group.ecs_asg
  }
