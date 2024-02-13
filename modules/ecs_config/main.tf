@@ -10,7 +10,7 @@ resource "aws_launch_template" "ecs_lt" {
  key_name               = var.key_name
  vpc_security_group_ids = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
  iam_instance_profile {
-   name = "ecsInstanceRole"
+   name = "adminrole"
  }
 
  block_device_mappings {
