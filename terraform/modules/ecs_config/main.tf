@@ -70,7 +70,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
 }
 
 data "aws_autoscaling_groups" "existing_groups" {
-  names = ["your-asg-name"]
+  names = ["ecs_asg"]
 }
 
 
@@ -92,7 +92,7 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 }
 
 data "aws_ecs_capacity_providers" "existing_providers" {
-  names = ["your-capacity-provider-name"]
+  names = ["test1"]
 }
 
 
@@ -111,7 +111,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 }
 
 data "aws_ecs_cluster_capacity_providers" "existing_providers" {
-  cluster_name = aws_ecs_cluster.ecs_cluster.name
+  cluster_name = ["aws_ecs_cluster.ecs_cluster.name"]
 }
 
 

@@ -26,11 +26,11 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
 }
 
 data "aws_ecs_cluster" "existing_cluster" {
-  cluster_name = "my-ecs-cluster"  # Replace this with the name of your ECS cluster
+  cluster_name = ["my-ecs-cluster"]  # Replace this with the name of your ECS cluster
 }
 
 data "aws_ecs_capacity_providers" "existing_providers" {
-  names = ["your-capacity-provider-name"]
+  names = ["test1"]
 }
 
 resource "aws_ecs_service" "ecs_service" {
