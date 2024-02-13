@@ -18,4 +18,5 @@ variable "security_group" {
 }
 variable "ecs_cluster" {
   type = string
+  default = my-ecs-cluster
 }
