@@ -29,6 +29,10 @@ data "aws_ecs_cluster" "existing_cluster" {
   cluster_name = "my-ecs-cluster"  # Replace this with the name of your ECS cluster
 }
 
+data "aws_ecs_capacity_providers" "existing_providers" {
+  names = ["your-capacity-provider-name"]
+}
+
 resource "aws_ecs_service" "ecs_service" {
  name            = "my-ecs-service"
  cluster         = data.aws_ecs_cluster.existing_cluster.id
@@ -50,7 +54,7 @@ resource "aws_ecs_service" "ecs_service" {
  }
 
  capacity_provider_strategy {
-   capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
+   capacity_provider = data.aws_ecs_capacity_provider.existing_providers.name
    weight            = 100
  }
 
