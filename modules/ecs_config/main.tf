@@ -2,6 +2,10 @@ resource "aws_ecs_cluster" "ecs_cluster" {
  name = "my-ecs-cluster"
 }
 
+output "ecs_cluster_id" {
+  value = aws_ecs_cluster.ecs_cluster.id
+}
+
 resource "aws_launch_template" "ecs_lt" {
  name_prefix   = "ecs-template"
  image_id      = var.ami_id
