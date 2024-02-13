@@ -13,3 +13,6 @@ variable "key_name" {
 variable "ecr_image_uri" {
   type = string
 }
+variable "security_group" {
+  type = string
+}
