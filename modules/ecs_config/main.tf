@@ -8,7 +8,7 @@ resource "aws_launch_template" "ecs_lt" {
  instance_type = var.instance_type
 
  key_name               = var.key_name
- vpc_security_group_ids = [aws_security_group.security_group.id]
+ vpc_security_group_ids = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
  iam_instance_profile {
    name = "ecsInstanceRole"
  }
@@ -28,11 +28,11 @@ resource "aws_launch_template" "ecs_lt" {
    }
  }
 
- user_data = filebase64("${path.module}/ecs.sh")
+ user_data = filebase64("./ecs.sh")
 }
 
 resource "aws_autoscaling_group" "ecs_asg" {
- vpc_zone_identifier = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+ vpc_zone_identifier = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
  desired_capacity    = 2
  max_size            = 2
  min_size            = 1
@@ -111,8 +111,8 @@ resource "aws_ecs_service" "ecs_service" {
  desired_count   = 2
 
  network_configuration {
-   subnets         = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
-   security_groups = [aws_security_group.security_group.id]
+   subnets         = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
+   security_groups = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
  }
 
  force_new_deployment = true
