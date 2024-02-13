@@ -12,6 +12,7 @@ output "ecs_cluster_id" {
   value = aws_ecs_cluster.ecs_cluster.id
 }
 
+
 resource "aws_launch_template" "ecs_lt" {
   count = length(data.aws_launch_templates.existing_templates.ids) == 0 ? 1 : 0
   name_prefix   = "ecs-template"
