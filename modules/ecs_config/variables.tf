@@ -10,13 +10,6 @@ variable "key_name" {
   type = string
   default = "waheed-test"
 }
-variable "ecr_image_uri" {
-  type = string
-}
-variable "security_group" {
-  type = string
-  default = "sg-067e56dd2d6651ddf"
-}
 variable "ecs_cluster" {
   type = string
   default = "my-ecs-cluster"
