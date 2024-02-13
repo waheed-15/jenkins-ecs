@@ -25,9 +25,13 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
  ])
 }
 
+data "aws_ecs_cluster" "existing_cluster" {
+  cluster_name = "my-ecs-cluster"  # Replace this with the name of your ECS cluster
+}
+
 resource "aws_ecs_service" "ecs_service" {
  name            = "my-ecs-service"
- cluster         = var.ecs_cluster_id
+ cluster         = data.aws_ecs_cluster.existing_cluster.id
  task_definition = aws_ecs_task_definition.ecs_task_definition.arn
  desired_count   = 2
 
