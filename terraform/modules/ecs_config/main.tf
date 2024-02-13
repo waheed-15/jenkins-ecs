@@ -1,84 +1,118 @@
 resource "aws_ecs_cluster" "ecs_cluster" {
- name = "my-ecs-cluster"
+  count = length(data.aws_ecs_clusters.existing_clusters.ids) == 0 ? 1 : 0
+  name  = "my-ecs-cluster"
 }
+
+data "aws_ecs_clusters" "existing_clusters" {
+  names = ["my-ecs-cluster"]
+}
+
 
 output "ecs_cluster_id" {
   value = aws_ecs_cluster.ecs_cluster.id
 }
 
 resource "aws_launch_template" "ecs_lt" {
- name_prefix   = "ecs-template"
- image_id      = var.ami_id
- instance_type = var.instance_type
+  count = length(data.aws_launch_templates.existing_templates.ids) == 0 ? 1 : 0
+  name_prefix   = "ecs-template"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
 
- key_name               = var.key_name
- vpc_security_group_ids = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
- iam_instance_profile {
-   name = "adminrole"
- }
+  key_name               = var.key_name
+  vpc_security_group_ids = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
+  
+  iam_instance_profile {
+    name = "adminrole"
+  }
 
- block_device_mappings {
-   device_name = "/dev/xvda"
-   ebs {
-     volume_size = 30
-     volume_type = "gp2"
-   }
- }
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 30
+      volume_type = "gp2"
+    }
+  }
 
- tag_specifications {
-   resource_type = "instance"
-   tags = {
-     Name = "ecs-instance"
-   }
- }
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "ecs-instance"
+    }
+  }
 
- user_data = filebase64("./ecs.sh")
+  user_data = filebase64("./ecs.sh")
 }
+
+data "aws_launch_templates" "existing_templates" {
+  names = ["ecs-template*"]
+}
+
 
 resource "aws_autoscaling_group" "ecs_asg" {
- vpc_zone_identifier = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
- desired_capacity    = 2
- max_size            = 2
- min_size            = 1
+  count = length(data.aws_autoscaling_groups.existing_groups.names) == 0 ? 1 : 0
+  
+  vpc_zone_identifier = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
+  desired_capacity    = 2
+  max_size            = 2
+  min_size            = 1
 
- launch_template {
-   id      = aws_launch_template.ecs_lt.id
-   version = "$Latest"
- }
+  launch_template {
+    id      = aws_launch_template.ecs_lt.id
+    version = "$Latest"
+  }
 
- tag {
-   key                 = "AmazonECSManaged"
-   value               = true
-   propagate_at_launch = true
- }
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = true
+    propagate_at_launch = true
+  }
 }
+
+data "aws_autoscaling_groups" "existing_groups" {
+  names = ["your-asg-name"]
+}
+
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
- name = "test1"
+  count = length(data.aws_ecs_capacity_providers.existing_providers.names) == 0 ? 1 : 0
+  
+  name = "test1"
 
- auto_scaling_group_provider {
-   auto_scaling_group_arn = aws_autoscaling_group.ecs_asg.arn
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.ecs_asg.arn
 
-   managed_scaling {
-     maximum_scaling_step_size = 1000
-     minimum_scaling_step_size = 1
-     status                    = "ENABLED"
-     target_capacity           = 3
-   }
- }
+    managed_scaling {
+      maximum_scaling_step_size = 1000
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 3
+    }
+  }
 }
+
+data "aws_ecs_capacity_providers" "existing_providers" {
+  names = ["your-capacity-provider-name"]
+}
+
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
- cluster_name = aws_ecs_cluster.ecs_cluster.name
+  count = length(data.aws_ecs_cluster_capacity_providers.existing_providers.names) == 0 ? 1 : 0
 
- capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
+  cluster_name = aws_ecs_cluster.ecs_cluster.name
 
- default_capacity_provider_strategy {
-   base              = 1
-   weight            = 100
-   capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
- }
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
+  }
 }
+
+data "aws_ecs_cluster_capacity_providers" "existing_providers" {
+  cluster_name = aws_ecs_cluster.ecs_cluster.name
+}
+
 
 # resource "aws_ecs_task_definition" "ecs_task_definition" {
 #  family             = "my-ecs-task"
