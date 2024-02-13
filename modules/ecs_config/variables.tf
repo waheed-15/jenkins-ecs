@@ -15,8 +15,9 @@ variable "ecr_image_uri" {
 }
 variable "security_group" {
   type = string
+  default = "sg-067e56dd2d6651ddf"
 }
 variable "ecs_cluster" {
   type = string
-  default = my-ecs-cluster
+  default = "my-ecs-cluster"
 }
