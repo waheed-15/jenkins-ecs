@@ -16,3 +16,6 @@ variable "ecr_image_uri" {
 variable "security_group" {
   type = string
 }
+variable "ecs_cluster" {
+  type = string
+}
