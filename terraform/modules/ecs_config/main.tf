@@ -1,14 +1,16 @@
 resource "aws_ecs_cluster" "ecs_cluster" {
-  count = contains(keys(aws_ecs_cluster.ecs_cluster.*.id), "my-ecs-cluster") ? 0 : 1
+  count = length(terraform.workspace == "default" ? [] : aws_ecs_cluster.ecs_cluster[*]) == 0 ? 1 : 0
   name  = "my-ecs-cluster"
 }
+
 
 output "ecs_cluster_id" {
   value = aws_ecs_cluster.ecs_cluster.id
 }
 
 resource "aws_launch_template" "ecs_lt" {
-  count = length(data.aws_launch_templates.existing_templates.ids) == 0 ? 1 : 0
+  count = length(terraform.workspace == "default" ? [] : aws_launch_template.ecs_lt[*]) == 0 ? 1 : 0
+
   name_prefix   = "ecs-template"
   image_id      = var.ami_id
   instance_type = var.instance_type
@@ -38,8 +40,9 @@ resource "aws_launch_template" "ecs_lt" {
   user_data = filebase64("./ecs.sh")
 }
 
+
 resource "aws_autoscaling_group" "ecs_asg" {
-  count = length(data.aws_autoscaling_groups.existing_groups.names) == 0 ? 1 : 0
+  count = length(terraform.workspace == "default" ? [] : aws_autoscaling_group.ecs_asg[*]) == 0 ? 1 : 0
   
   vpc_zone_identifier = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
   desired_capacity    = 2
@@ -59,13 +62,14 @@ resource "aws_autoscaling_group" "ecs_asg" {
 }
 
 
+
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = length(data.aws_ecs_capacity_providers.existing_providers.names) == 0 ? 1 : 0
+  count = length(terraform.workspace == "default" ? [] : aws_ecs_capacity_provider.ecs_capacity_provider[*]) == 0 ? 1 : 0
   
   name = "test1"
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn = aws_autoscaling_group.ecs_asg.arn
+    auto_scaling_group_arn = aws_autoscaling_group.ecs_asg[0].arn
 
     managed_scaling {
       maximum_scaling_step_size = 1000
@@ -82,22 +86,22 @@ output "capacity_provider_name" {
 
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
-  count = length(data.aws_ecs_cluster_capacity_providers.existing_providers.names) == 0 ? 1 : 0
+  count = length(terraform.workspace == "default" ? [] : aws_ecs_cluster_capacity_providers.example[*]) == 0 ? 1 : 0
 
   cluster_name = aws_ecs_cluster.ecs_cluster.name
 
-  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider[0].name]
 
   default_capacity_provider_strategy {
     base              = 1
     weight            = 100
-    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider[0].name
   }
 }
 
 
+
 resource "aws_ecs_task_definition" "ecs_task_definition" {
-  count              = length(data.aws_ecs_task_definitions.existing_definitions.arns) == 0 ? 1 : 0
   family             = "my-ecs-task"
   network_mode       = "awsvpc"
   execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
@@ -129,7 +133,6 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
 
 
 resource "aws_ecs_service" "ecs_service" {
-  count            = length(data.aws_ecs_services.existing_services.arns) == 0 ? 1 : 0
   name             = "my-ecs-service"
   cluster          = aws_ecs_cluster.ecs_cluster.id
   task_definition  = aws_ecs_task_definition.ecs_task_definition.arn
