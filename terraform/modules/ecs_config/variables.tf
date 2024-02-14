@@ -14,3 +14,6 @@ variable "ecs_cluster" {
   type = string
   default = "my-ecs-cluster"
 }
+variable "ecr_image_uri" {
+  type = string
+}
