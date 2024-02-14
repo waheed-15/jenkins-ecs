@@ -3,10 +3,6 @@ resource "aws_ecs_cluster" "ecs_cluster" {
   name  = "my-ecs-cluster"
 }
 
-data "aws_ecs_clusters" "existing_clusters" {
-  names = ["my-ecs-cluster"]
-}
-
 output "ecs_cluster_id" {
   value = aws_ecs_cluster.ecs_cluster.id
 }
@@ -42,10 +38,6 @@ resource "aws_launch_template" "ecs_lt" {
   user_data = filebase64("./ecs.sh")
 }
 
-data "aws_launch_templates" "existing_templates" {
-  names = ["ecs-template*"]
-}
-
 resource "aws_autoscaling_group" "ecs_asg" {
   count = length(data.aws_autoscaling_groups.existing_groups.names) == 0 ? 1 : 0
   
@@ -66,9 +58,6 @@ resource "aws_autoscaling_group" "ecs_asg" {
   }
 }
 
-data "aws_autoscaling_groups" "existing_groups" {
-  names = ["ecs_asg"]
-}
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
   count = length(data.aws_ecs_capacity_providers.existing_providers.names) == 0 ? 1 : 0
@@ -91,9 +80,6 @@ output "capacity_provider_name" {
   value = aws_ecs_capacity_provider.ecs_capacity_provider.name
 }
 
-data "aws_ecs_capacity_providers" "existing_providers" {
-  names = ["test1"]
-}
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
   count = length(data.aws_ecs_cluster_capacity_providers.existing_providers.names) == 0 ? 1 : 0
@@ -109,9 +95,6 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
   }
 }
 
-data "aws_ecs_cluster_capacity_providers" "existing_providers" {
-  cluster_name = ["aws_ecs_cluster.ecs_cluster.name"]
-}
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
   count              = length(data.aws_ecs_task_definitions.existing_definitions.arns) == 0 ? 1 : 0
@@ -144,9 +127,6 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   ])
 }
 
-data "aws_ecs_task_definitions" "existing_definitions" {
-  family_prefix = "my-ecs-task"
-}
 
 resource "aws_ecs_service" "ecs_service" {
   count            = length(data.aws_ecs_services.existing_services.arns) == 0 ? 1 : 0
