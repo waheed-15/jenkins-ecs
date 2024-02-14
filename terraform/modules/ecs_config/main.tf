@@ -103,7 +103,7 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 }
 
 output "capacity_provider_name" {
-  value = aws_ecs_capacity_provider.ecs_capacity_provider[0].name  
+  value = aws_ecs_capacity_provider.ecs_capacity_provider.name  
 }
 
 
