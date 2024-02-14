@@ -112,7 +112,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 
   cluster_name = aws_ecs_cluster.ecs_cluster[length(aws_ecs_cluster.ecs_cluster) - 1].name
 
-  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider[length(aws_ecs_capacity_provider.ecs_capacity_provider) - 1].name]
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
 
   default_capacity_provider_strategy {
     base              = 1
