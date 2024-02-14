@@ -61,7 +61,6 @@ resource "aws_autoscaling_group" "ecs_asg" {
   }
 }
 
-
 resource "null_resource" "check_capacity_provider" {
   # This resource doesn't create anything, it just runs the local-exec provisioner
   triggers = {
@@ -70,19 +69,22 @@ resource "null_resource" "check_capacity_provider" {
 
   provisioner "local-exec" {
     command = <<EOT
-      # Check if the capacity provider already exists in the terraform.tfstate
-      if grep -q '"aws_ecs_capacity_provider"."ecs_capacity_provider"' /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfstate; then
-        echo "Capacity provider already exists"
-        echo "CAPACITY_PROVIDER_EXISTS = true" > /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
+      # Check if the capacity provider already exists
+      if grep -q '"aws_ecs_capacity_provider"."ecs_capacity_provider"' /path/to/terraform.tfstate; then
+        echo "CAPACITY_PROVIDER_EXISTS = true" >> /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
       else
-        echo "Capacity provider does not exist"
-        echo "CAPACITY_PROVIDER_EXISTS = false" > /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
+        echo "CAPACITY_PROVIDER_EXISTS = false" >> /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
       fi
     EOT
   }
 }
 
+locals {
+  capacity_provider_exists = var.CAPACITY_PROVIDER_EXISTS
+}
+
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
+  count = local.capacity_provider_exists ? 0 : 1
   name = "test1"
 
   auto_scaling_group_provider {
@@ -95,15 +97,10 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
       target_capacity           = 3
     }
   }
-
-  # Ignore any errors that occur if the capacity provider already exists
-  lifecycle {
-    ignore_changes = [name]
-  }
 }
 
 output "capacity_provider_name" {
-  value = aws_ecs_capacity_provider.ecs_capacity_provider.name  
+  value = local.capacity_provider_exists ? "Capacity provider exists" : aws_ecs_capacity_provider.ecs_capacity_provider[0].name
 }
 
 

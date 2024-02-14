@@ -17,3 +17,7 @@ variable "ecs_cluster" {
 variable "ecr_image_uri" {
   type = string
 }
+variable "CAPACITY_PROVIDER_EXISTS" {
+  type = bool
+  default = false
+}
