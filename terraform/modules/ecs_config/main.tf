@@ -81,7 +81,7 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 }
 
 output "capacity_provider_name" {
-  value = aws_ecs_capacity_provider.ecs_capacity_provider[length(aws_ecs_capacity_provider.ecs_capacity_provider) - 1].name  
+  value = aws_ecs_capacity_provider.ecs_capacity_provider[0].name  
 }
 
 
@@ -105,7 +105,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
 
   family             = "my-ecs-task"
   network_mode       = "awsvpc"
-  execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
+  execution_role_arn = "arn:aws:iam::847415613895:role/adminrole"
   cpu                = 256
 
   runtime_platform {
