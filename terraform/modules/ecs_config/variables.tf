@@ -19,4 +19,5 @@ variable "ecr_image_uri" {
 }
 variable "CAPACITY_PROVIDER_EXISTS" {
   type = bool
+  default = false
 }
