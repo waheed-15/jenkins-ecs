@@ -83,7 +83,8 @@ resource "null_resource" "check_capacity_provider" {
 }
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = length(aws_ecs_capacity_provider.ecs_capacity_provider) > 0 ? 0 : 1
+  count = length(aws_ecs_capacity_provider.ecs_capacity_provider) == 0 ? 1 : 0
+  
   name = "test1"
 
   auto_scaling_group_provider {
@@ -113,7 +114,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
   default_capacity_provider_strategy {
     base              = 1
     weight            = 100
-    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider[length(aws_ecs_capacity_provider.ecs_capacity_provider) - 1].name
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider[0].name
   }
 }
 
