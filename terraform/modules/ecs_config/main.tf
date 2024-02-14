@@ -83,7 +83,7 @@ resource "null_resource" "check_capacity_provider" {
 }
 
 locals {
-  capacity_provider_exists = var.CAPACITY_PROVIDER_EXISTS
+  capacity_provider_exists = length(aws_ecs_capacity_provider.ecs_capacity_provider) > 0
 }
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
