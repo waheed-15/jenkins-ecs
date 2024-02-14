@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "ecs_cluster" {
-  count = length(data.aws_ecs_clusters.existing_clusters.ids) == 0 ? 1 : 0
+  count = contains(keys(aws_ecs_cluster.ecs_cluster.*.id), "my-ecs-cluster") ? 0 : 1
   name  = "my-ecs-cluster"
 }
 
