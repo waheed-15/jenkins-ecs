@@ -5,7 +5,7 @@ resource "aws_ecs_cluster" "ecs_cluster" {
 
 
 output "ecs_cluster_id" {
-  value = aws_ecs_cluster.ecs_cluster.id
+  value = aws_ecs_cluster.ecs_cluster[length(aws_ecs_cluster.ecs_cluster) - 1].id
 }
 
 resource "aws_launch_template" "ecs_lt" {
@@ -81,7 +81,7 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 }
 
 output "capacity_provider_name" {
-  value = aws_ecs_capacity_provider.ecs_capacity_provider.name
+  value = aws_ecs_capacity_provider.ecs_capacity_provider[0].name  
 }
 
 
