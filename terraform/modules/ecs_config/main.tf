@@ -117,7 +117,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
   default_capacity_provider_strategy {
     base              = 1
     weight            = 100
-    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider[0].name
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
   }
 }
 
@@ -177,7 +177,7 @@ resource "aws_ecs_service" "ecs_service" {
   }
 
   capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider[length(aws_ecs_capacity_provider.ecs_capacity_provider) - 1].name
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
     weight            = 100
   }
   
