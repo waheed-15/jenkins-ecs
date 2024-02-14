@@ -64,7 +64,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
 
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = length(terraform.workspace == "default" ? [] : aws_ecs_capacity_provider.ecs_capacity_provider[*]) == 0 ? 1 : 0
+  count = length(data.terraform_remote_state.ecs_capacity_provider_state.outputs.capacity_providers) == 0 ? 1 : 0
   
   name = "test1"
 
