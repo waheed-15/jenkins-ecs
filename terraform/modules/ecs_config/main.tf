@@ -81,6 +81,7 @@ resource "null_resource" "check_capacity_provider" {
     EOT
   }
 }
+
 locals {
   capacity_provider_exists = var.CAPACITY_PROVIDER_EXISTS
 }
