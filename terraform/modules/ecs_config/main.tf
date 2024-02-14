@@ -178,5 +178,5 @@ resource "aws_ecs_service" "ecs_service" {
 #    container_port   = 80
 #  }
 
- depends_on = module.ecs_config.aws_autoscaling_group.ecs_asg
+ depends_on = [aws_autoscaling_group.ecs_asg]
 }
