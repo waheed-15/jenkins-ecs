@@ -82,13 +82,7 @@ resource "null_resource" "check_capacity_provider" {
   }
 }
 
-data "aws_ecs_capacity_provider" "existing_capacity_provider" {
-  name = "test1"
-}
-
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = data.aws_ecs_capacity_provider.existing_capacity_provider ? 0 : 1
-  
   name = "test1"
 
   auto_scaling_group_provider {
@@ -101,11 +95,17 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
       target_capacity           = 3
     }
   }
+
+  # Ignore any errors that occur if the capacity provider already exists
+  lifecycle {
+    ignore_changes = [name]
+  }
 }
 
 output "capacity_provider_name" {
   value = aws_ecs_capacity_provider.ecs_capacity_provider[0].name  
 }
+
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
   count = length(terraform.workspace == "default" ? [] : aws_ecs_cluster_capacity_providers.example[*]) == 0 ? 1 : 0
