@@ -61,9 +61,6 @@ resource "aws_autoscaling_group" "ecs_asg" {
   }
 }
 
-locals {
-  capacity_provider_exists = false
-} 
 
 resource "null_resource" "check_capacity_provider" {
   # This resource doesn't create anything, it just runs the local-exec provisioner
