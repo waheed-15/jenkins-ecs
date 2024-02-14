@@ -4,14 +4,12 @@ resource "aws_ecs_cluster" "ecs_cluster" {
 }
 
 data "aws_ecs_clusters" "existing_clusters" {
-  names = "my-ecs-cluster"
+  names = ["my-ecs-cluster"]
 }
-
 
 output "ecs_cluster_id" {
   value = aws_ecs_cluster.ecs_cluster.id
 }
-
 
 resource "aws_launch_template" "ecs_lt" {
   count = length(data.aws_launch_templates.existing_templates.ids) == 0 ? 1 : 0
@@ -45,9 +43,8 @@ resource "aws_launch_template" "ecs_lt" {
 }
 
 data "aws_launch_templates" "existing_templates" {
-  names = "ecs-template*"
+  names = ["ecs-template*"]
 }
-
 
 resource "aws_autoscaling_group" "ecs_asg" {
   count = length(data.aws_autoscaling_groups.existing_groups.names) == 0 ? 1 : 0
@@ -70,9 +67,8 @@ resource "aws_autoscaling_group" "ecs_asg" {
 }
 
 data "aws_autoscaling_groups" "existing_groups" {
-  names = "ecs_asg"
+  names = ["ecs_asg"]
 }
-
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
   count = length(data.aws_ecs_capacity_providers.existing_providers.names) == 0 ? 1 : 0
@@ -93,12 +89,11 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 
 output "capacity_provider_name" {
   value = aws_ecs_capacity_provider.ecs_capacity_provider.name
-  
-}
-data "aws_ecs_capacity_providers" "existing_providers" {
-  names = "test1"
 }
 
+data "aws_ecs_capacity_providers" "existing_providers" {
+  names = ["test1"]
+}
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
   count = length(data.aws_ecs_cluster_capacity_providers.existing_providers.names) == 0 ? 1 : 0
@@ -115,68 +110,70 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 }
 
 data "aws_ecs_cluster_capacity_providers" "existing_providers" {
-  cluster_name = "aws_ecs_cluster.ecs_cluster.name"
+  cluster_name = ["aws_ecs_cluster.ecs_cluster.name"]
 }
-
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
- family             = "my-ecs-task"
- network_mode       = "awsvpc"
- execution_role_arn = module.ecr.aws_ecr_repository.app_repo.repository_url
- cpu                = 256
- runtime_platform {
-   operating_system_family = "LINUX"
-   cpu_architecture        = "X86_64"
- }
- container_definitions = jsonencode([
-   {
-     name      = "dockergs"
-     image     = var.ecr_image_uri
-     cpu       = 256
-     memory    = 512
-     essential = true
-     portMappings = [
-       {
-         containerPort = 80
-         hostPort      = 80
-         protocol      = "tcp"
-       }
-     ]
-   }
- ])
+  count              = length(data.aws_ecs_task_definitions.existing_definitions.arns) == 0 ? 1 : 0
+  family             = "my-ecs-task"
+  network_mode       = "awsvpc"
+  execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
+  cpu                = 256
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
+  container_definitions = jsonencode([
+    {
+      name      = "dockergs"
+      image     = var.ecr_image_uri
+      cpu       = 256
+      memory    = 512
+      essential = true
+
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
 }
 
+data "aws_ecs_task_definitions" "existing_definitions" {
+  family_prefix = "my-ecs-task"
+}
 
 resource "aws_ecs_service" "ecs_service" {
- name            = "my-ecs-service"
- cluster         = aws_ecs_cluster.ecs_cluster.id
- task_definition = aws_ecs_task_definition.ecs_task_definition.arn
- desired_count   = 2
+  count            = length(data.aws_ecs_services.existing_services.arns) == 0 ? 1 : 0
+  name             = "my-ecs-service"
+  cluster          = aws_ecs_cluster.ecs_cluster.id
+  task_definition  = aws_ecs_task_definition.ecs_task_definition.arn
+  desired_count    = 2
 
- network_configuration {
-   subnets         = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
-   security_groups = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
- }
+  network_configuration {
+    subnets         = ["subnet-0ab6ee277d0b523f8", "subnet-0c192bb582f2042c0"]
+    security_groups = ["sg-0498660e030d72814", "sg-067e56dd2d6651ddf"]
+  }
 
- force_new_deployment = true
- placement_constraints {
-   type = "distinctInstance"
- }
+  force_new_deployment = true
 
- triggers = {
-   redeployment = timestamp()
- }
+  placement_constraints {
+    type = "distinctInstance"
+  }
 
- capacity_provider_strategy {
-   capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
-   weight            = 100
- }
+  triggers = {
+    redeployment = timestamp()
+  }
 
-#  load_balancer {
-#    target_group_arn = aws
-#    container_name   = "dockergs"
-#    container_port   = 80
-#  }
-
- depends_on = [aws_autoscaling_group.ecs_asg]
+  capacity_provider_strategy {
+    capacity_provider = aws_ecs_capacity_provider.ecs_capacity_provider.name
+    weight            = 100
+  }
+  
+  depends_on = [aws_autoscaling_group.ecs_asg]
 }
