@@ -71,12 +71,12 @@ resource "null_resource" "check_capacity_provider" {
   provisioner "local-exec" {
     command = <<EOT
       # Check if the capacity provider already exists in the terraform.tfstate
-      if grep -q '"aws_ecs_capacity_provider"."ecs_capacity_provider"' /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars; then
+      if grep -q '"aws_ecs_capacity_provider"."ecs_capacity_provider"' /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfstate; then
         echo "Capacity provider already exists"
-        export CAPACITY_PROVIDER_EXISTS=true
+        echo "CAPACITY_PROVIDER_EXISTS = true" > /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
       else
         echo "Capacity provider does not exist"
-        export CAPACITY_PROVIDER_EXISTS=false
+        echo "CAPACITY_PROVIDER_EXISTS = false" > /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars
       fi
     EOT
   }
