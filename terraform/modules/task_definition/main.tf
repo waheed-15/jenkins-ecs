@@ -25,13 +25,17 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
  ])
 }
 
-data "aws_ecs_cluster" "existing_cluster" {
-  cluster_name = "my-ecs-cluster"  # Replace this with the name of your ECS cluster
+data "aws_ecs_clusters" "existing_clusters" {
+  names = "my-ecs-cluster"
+}
+
+data "aws_ecs_capacity_providers" "existing_providers" {
+  names = "test1"
 }
 
 resource "aws_ecs_service" "ecs_service" {
  name            = "my-ecs-service"
- cluster         = data.aws_ecs_cluster.existing_cluster.id
+ cluster         = data.aws_ecs_clusters.existing_clusters.id
  task_definition = aws_ecs_task_definition.ecs_task_definition.arn
  desired_count   = 2
 
@@ -50,7 +54,7 @@ resource "aws_ecs_service" "ecs_service" {
  }
 
  capacity_provider_strategy {
-   capacity_provider = data.aws_ecs_cluster_capacity_providers.existing_providers.name
+   capacity_provider = data.aws_ecs_capacity_providers.existing_providers.name
    weight            = 100
  }
 

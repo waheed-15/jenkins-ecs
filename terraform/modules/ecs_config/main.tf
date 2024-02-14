@@ -4,7 +4,7 @@ resource "aws_ecs_cluster" "ecs_cluster" {
 }
 
 data "aws_ecs_clusters" "existing_clusters" {
-  names = ["my-ecs-cluster"]
+  names = "my-ecs-cluster"
 }
 
 
@@ -45,7 +45,7 @@ resource "aws_launch_template" "ecs_lt" {
 }
 
 data "aws_launch_templates" "existing_templates" {
-  names = ["ecs-template*"]
+  names = "ecs-template*"
 }
 
 
@@ -70,7 +70,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
 }
 
 data "aws_autoscaling_groups" "existing_groups" {
-  names = ["ecs_asg"]
+  names = "ecs_asg"
 }
 
 
@@ -96,7 +96,7 @@ output "capacity_provider_name" {
   
 }
 data "aws_ecs_capacity_providers" "existing_providers" {
-  names = ["test1"]
+  names = "test1"
 }
 
 
@@ -115,7 +115,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 }
 
 data "aws_ecs_cluster_capacity_providers" "existing_providers" {
-  cluster_name = ["aws_ecs_cluster.ecs_cluster.name"]
+  cluster_name = "aws_ecs_cluster.ecs_cluster.name"
 }
 
 
