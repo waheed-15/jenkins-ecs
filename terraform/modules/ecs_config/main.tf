@@ -82,8 +82,12 @@ resource "null_resource" "check_capacity_provider" {
   }
 }
 
+data "aws_ecs_capacity_provider" "existing_capacity_provider" {
+  name = "test1"
+}
+
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = length(aws_ecs_capacity_provider.ecs_capacity_provider) == 0 ? 1 : 0
+  count = data.aws_ecs_capacity_provider.existing_capacity_provider ? 0 : 1
   
   name = "test1"
 
@@ -102,7 +106,6 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
 output "capacity_provider_name" {
   value = aws_ecs_capacity_provider.ecs_capacity_provider[0].name  
 }
-
 
 resource "aws_ecs_cluster_capacity_providers" "example" {
   count = length(terraform.workspace == "default" ? [] : aws_ecs_cluster_capacity_providers.example[*]) == 0 ? 1 : 0
