@@ -61,12 +61,35 @@ resource "aws_autoscaling_group" "ecs_asg" {
   }
 }
 
+locals {
+  capacity_provider_exists = false
+} 
 
+resource "null_resource" "check_capacity_provider" {
+  # This resource doesn't create anything, it just runs the local-exec provisioner
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      # Check if the capacity provider already exists in the terraform.tfstate
+      if grep -q '"aws_ecs_capacity_provider"."ecs_capacity_provider"' /var/lib/jenkins/workspace/test/terraform/modules/ecs_config/terraform.tfvars; then
+        echo "Capacity provider already exists"
+        export CAPACITY_PROVIDER_EXISTS=true
+      else
+        echo "Capacity provider does not exist"
+        export CAPACITY_PROVIDER_EXISTS=false
+      fi
+    EOT
+  }
+}
+locals {
+  capacity_provider_exists = "${var.CAPACITY_PROVIDER_EXISTS}"
+}
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  count = length(data.terraform_state.ecs_capacity_provider_state.outputs.capacity_providers) == 0 ? 1 : 0
-
-  
+  count = local.capacity_provider_exists ? 0 : 1
   name = "test1"
 
   auto_scaling_group_provider {
